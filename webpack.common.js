@@ -89,7 +89,14 @@ module.exports = {
                                   optimizationLevel: 3
                                 },
                                 svgo: {
-                                    removeViewBox: false
+                                    plugins:[
+                                        {removeViewBox: false},
+                                        {convertStyleToAttrs: false},
+                                        // {removeUselessStrokeAndFill: false},
+                                        {minifyStyles: false},
+                                        // {removeUselessDefs: false},
+                                        {inlineStyles: false}
+                                    ]
                                 },
                                 // the webp option will enable WEBP
                                 webp: {

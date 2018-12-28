@@ -12,7 +12,7 @@ module.exports = merge(common, {
                 test:/\.s?[ac]ss$/,
                 use:[
                     MiniCssExtractPlugin.loader,
-                    'css-loader',
+                    'css-loader?url=false',
                     'postcss-loader',
                     'sass-loader',
                   ],
@@ -23,7 +23,7 @@ module.exports = merge(common, {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[ext]',
-                        publicPath: 'fonts/',
+                        // publicPath: 'dist',
                         outputPath: 'css/fonts/'
                     }
                 }],

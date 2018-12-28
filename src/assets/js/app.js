@@ -28,6 +28,8 @@ function importAll (r) {
 importAll(require.context('../img/', true, /\.(png|jpe?g|gif|svg)$/));
 // import front-end necessary files
 importAll(require.context('../../../src/', true, /(\.(ico|txt|xml|htaccess|webmanifest)?$|(tile\.png|tile-wide\.png))/));
+// import fonts files
+importAll(require.context('../scss/fonts/', true, /\.(woff(2)?|ttf|eot)(?=\?[A-Za-z0-9])?$|\.svg$/));
 //================================
 // import scss
 import "../scss/app.scss";
