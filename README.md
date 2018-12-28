@@ -3,7 +3,7 @@
 Memory Game Proj assigned by Udacity FEND-ND
 
 ---
-* [Page](https://ah-salah.github.io/memory-game/)
+* [App](https://ah-salah.github.io/memory-game/)
 ---
 
 ## Build Setup
