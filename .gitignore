@@ -5,7 +5,7 @@
 node_modules/
 dist/
 dist*/
-docs*
+docs*/
 #.gitignore
 #.gitattributes
 npm-debug.log
