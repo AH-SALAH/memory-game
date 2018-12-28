@@ -5,7 +5,7 @@ Memory Game Proj assigned by Udacity FEND-ND
 ---
 * [App](https://ah-salah.github.io/memory-game/)
 ---
-## used Material:
+## used Sources:
 
 - Used images from [giphy](https://giphy.com/) & [freepik](https://www.freepik.com)
 - Card Logo return to Udacity owner. [Udacity](https://udacity.com) 
