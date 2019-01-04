@@ -63,6 +63,8 @@ import { isString } from "util";
 
 
 const MCG = {
+    body: document.querySelector("body"),
+    firstLoad: true,
     container: document.querySelector("body > .container"),
     deck: document.querySelector(".deck"),
     stars: document.querySelector(".stars"),
@@ -80,7 +82,7 @@ const MCG = {
     winningCards: [],
     movesCount: 0, // initial move counts
     numOfIcons: 3, // # of icons
-    moveIconName: 'star', // icon name
+    moveIconName: "star", // icon name
     moveIconElements: [],
     firstTimeModal: true, // to check for first modal open
     lazyLoad() {return new LazyLoad({elements_selector: ".lazyload"})},
@@ -116,7 +118,7 @@ const MCG = {
         return `<div class="card-wrapper animated">
                     <div class="card" data-name="${cls}">
                         <div class="front">
-                            <object type="image/svg+xml" data="img/udacity-logo-svg-vector.svg"></object> 
+                            <object type="image/svg+xml" data="img/udacity-logo-svg-vector.svg" style="display:none;" class="front-svg"></object> 
                         </div>
                         <div class="back">
                             <i class="fas fa-${cls}"></i>
@@ -195,6 +197,10 @@ const MCG = {
     },
     checkMatch(){
         let match = false;
+        if(!this.temporaryCards[0].dataset || !this.temporaryCards[1].dataset) {
+            this.temporaryCards = [];
+            return;
+        }
         this.temporaryCards[0].dataset.name == this.temporaryCards[1].dataset.name ? 
         match = true :
         match = false;
@@ -314,6 +320,7 @@ const MCG = {
                 if(el && el.classList.contains('rotate')) el.classList.remove('rotate');
                 this.container.classList.remove('fade-out');
                 this.timer();
+                this.showSvgLogo();
                 clearTimeout(tout);
             }, 500);
         }, 500);
@@ -386,6 +393,11 @@ const MCG = {
             this.modalBodyEl.classList.remove('bounceOutUp');
             clearTimeout(tot);
         }, 1000);
+        this.showSvgLogo();
+    },
+    showSvgLogo(){
+        let objSvgs = [...document.querySelectorAll(".card-wrapper object")];
+        objSvgs.map((svg) => {svg.style.display = "block"});
     },
     modalContent(cont){
         if(!cont) return console.log("Content param is undefined!");
@@ -406,7 +418,9 @@ const MCG = {
     clickCard(){
         let self = this;
         this.deck.addEventListener('click',(e)=>{
-            let card = e.target.parentElement;
+            let trgt = e.target,
+                card = e.target.parentElement;
+            if(trgt.classList.contains("front-svg")) return false;
             if(/*self.containsClass(card,'card flip match')*/card.classList.value.search(/\s*flip\s*|\s*match\s*|^((?!card).)*$/gi) > -1 || self.temporaryCards.length >= 2) return;
             self.openCard(card);
             self.temporaryCards.push(card);
@@ -420,6 +434,11 @@ const MCG = {
         });
     },
     init() {
+        if(this.firstLoad) {
+            this.body.style.display = 'block';
+            this.firstLoad = false;
+        }
+            
         this.createCards();
         this.createMoveIcons();
         this.clickCard();
@@ -435,7 +454,8 @@ MCG.init();
 
 
 
-
+//TO DO:
+// # Modularization
 
 //=================================================================================================
 // for hot module

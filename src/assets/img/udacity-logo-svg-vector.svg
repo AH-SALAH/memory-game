@@ -4,8 +4,8 @@
         .st0{
             stroke-dasharray: 200;
             stroke-dashoffset: 200;
-            animation: line 1s linear 3s forwards;
-            -webkit-animation: line 1s linear 3s forwards;
+            animation: line 1s linear 1s forwards;
+            -webkit-animation: line 1s linear 1s forwards;
         }
 
         @keyframes line {
