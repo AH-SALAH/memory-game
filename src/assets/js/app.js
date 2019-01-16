@@ -49,7 +49,7 @@ import "../scss/app.scss";
 //=================================
 // import needed modules
 import LazyLoad from "vanilla-lazyload";
-import { setTimeout, clearTimeout, setInterval ,clearInterval } from "timers";
+// import { setTimeout, clearTimeout, setInterval, clearInterval } from "timers";
 import { isString } from "util";
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,15 +61,45 @@ import { isString } from "util";
 // ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═╝╚═╝     ╚═╝          ╚════╝ ╚══════╝
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// var tInterval = setInterval(()=> {
+            
+//     // if(MemoCardGame.countdown == 61) { //if at any case returned to 61 clear current interval 
+//     //     MemoCardGame.countdown = 60;
+//     //     clearInterval(tInterval);
+//     //     // return false;
+//     // }
+//     // else{
+//     //     MemoCardGame.countdown;
+//     // }
+    
+//     if(MemoCardGame.winningCards.length == 16) { // if there are 16 card matched exit
+//         MemoCardGame.clearWinningCards();
+//         clearInterval(tInterval);
+//         tInterval = 0;
+//         return false;
+//     }
+        
+        
+//     MemoCardGame.countdown -= 1;
+//     MemoCardGame.countdownNumberEl.textContent = MemoCardGame.countdown.toLocaleString();
+    
+//     if(MemoCardGame.countdown <= 0) { //if reached to zero it's timeout
+//         clearInterval(tInterval);
+//         tInterval = 0;
+//         MemoCardGame.timeOut();
+//         //return false;
+//     }
 
-const MCG = {
+// },1000);
+
+const MemoCardGame = {
     body: document.querySelector("body"),
     firstLoad: true,
     container: document.querySelector("body > .container"),
     deck: document.querySelector(".deck"),
     stars: document.querySelector(".stars"),
     moves: document.querySelector(".moves"),
-    // restart: document.querySelector(".restart"),
+    restart: document.querySelector(".restart"),
     countdownEl: document.querySelector('.countdown'),
     countdownNumberEl: document.querySelector('.countdown > .countdown-number'),
     modalContainer: document.querySelector('.modal-container'),
@@ -81,10 +111,20 @@ const MCG = {
     temporaryCards: [],
     winningCards: [],
     movesCount: 0, // initial move counts
-    numOfIcons: 3, // # of icons
+    successfulMoves: 0,
+    wrongMoves: 0,
+    numOfIcons: 5, // # of icons
     moveIconName: "star", // icon name
     moveIconElements: [],
     firstTimeModal: true, // to check for first modal open
+    restartBtnClicked: false, // to check for for restart btn click
+    timerReset: false,
+    winningStarsElements: [],
+    // tInterval: ()=>{},
+    // timeInterval(cb) {
+    //     this.tInterval = setInterval(cb,1000);
+    //     return this.tInterval;
+    // }, //set the timeinterval fn
     lazyLoad() {return new LazyLoad({elements_selector: ".lazyload"})},
     Imgs(){ // get imgs from the img folder
         let Imgs = {
@@ -118,7 +158,8 @@ const MCG = {
         return `<div class="card-wrapper animated">
                     <div class="card" data-name="${cls}">
                         <div class="front">
-                            <object type="image/svg+xml" data="img/udacity-logo-svg-vector.svg" style="display:none;" class="front-svg"></object> 
+                            <!--<object type="image/svg+xml" data="img/udacity-logo-svg-vector.svg" style="display:none;" class="front-svg"></object>-->
+                            <img src="img/udacity-logo-svg-vector.svg" class="front-svg" style="display:none;"> 
                         </div>
                         <div class="back">
                             <i class="fas fa-${cls}"></i>
@@ -127,13 +168,21 @@ const MCG = {
                 </div>`;
     },
     starTemplate(icon){
-        return `<i class="far fa-${icon} animated"></i>`;
+        return `<i class="fas fa-${icon} animated"></i>`;
     },
     // Modal Start Template
     modalStartTemplate(h2 = 'Click To',btnTxt = 'Start'){
         if(!h2) h2 = 'Click To';
         if(!btnTxt) btnTxt = 'Start';
-        return `<h2>${h2} ${btnTxt}</h2><button class="modal-start-btn ${btnTxt.toLocaleLowerCase()}">${btnTxt}</button>`;
+        let tOut = `<div class="timeout">
+                        <h2>
+                            <i class="fas fa-stopwatch fa-2x"></i>
+                        </h2>
+                        <h1>Time Out</h1>
+                    </div>`;
+        return `${btnTxt.toLocaleLowerCase() == 'restart' ? tOut:''}
+                <h2>${h2} ${btnTxt}</h2>
+                <button class="modal-start-btn ${btnTxt.toLocaleLowerCase()}">${btnTxt}</button>`;
     },
     // Winning Modal template
     modalWinningTemplate(){
@@ -146,11 +195,32 @@ const MCG = {
         return `<div class="winning-template" style="background:rgba(0,0,0,0.5) url(${trophy}) no-repeat top center/cover;">
                     <h1>Congratulation!!</h1>
                     <div class="omedetou">
-                        <i class="fas fa-star fa-3x"></i> 
+                    <!--<i class="fas fa-star fa-3x"></i> 
                         <i class="fas fa-star fa-3x"></i>
                         <i class="fas fa-star fa-3x"></i>
                         <i class="fas fa-star fa-3x"></i>
-                        <i class="fas fa-star fa-3x"></i>
+                        <i class="fas fa-star fa-3x"></i>-->
+                        <div class="stars" style="font-size:2em;">
+                            ${this.winningStarsElements.length == 0 ? "With No Stars!": this.winningStarsElements.join('')}
+                        </div>
+                        <div class="result">
+                            <h3>Records</h3>
+                            <div class="moves-count data">
+                                <span><i class="fas fa-exchange-alt"></i> Moves</span>
+                                <span>
+                                    「<span style="color:mediumseagreen;">${this.successfulMoves} </span>
+                                    |<span style="color:crimson;"> ${this.wrongMoves} </span>」<span> ${this.wrongMoves + this.successfulMoves}</span>
+                                </span>
+                            </div>
+                            <div class="num-of-stars data">
+                                <span></pan><i class="fas fa-star"></i> Stars</span>
+                                <span>${this.winningStarsElements.length}</span>
+                            </div>
+                            <div class="time data">
+                                <span><i class="fas fa-stopwatch"></i> Time</span>
+                                <span>${60-this.countdown}s</span>
+                            </div>
+                        </div>
                     </div>
                     <h2>おめでとう~~~!</h2>
                     <img class="lazyload" src="${gif}" data-src="${gif}" alt="${trophy.split('/')[1].split('.')[0]}" />
@@ -212,13 +282,15 @@ const MCG = {
             card.parentElement.classList.add('tada');
             this.winningCards.push(card);
         }
+        this.successfulMoves +=1;
         this.clearTemporaryCards();
         if(this.winningCards.length == 16){
-           this.modalContent(this.modalWinningTemplate());
-           this.openModal();
-           this.resetTimer();
-           this.lazyLoad().update();
-           return;
+            this.winningStars();
+            this.modalContent(this.modalWinningTemplate());
+            this.openModal();
+            this.resetTimer();
+            this.lazyLoad().update();
+            return;
         }
         this.CountDown();
     },
@@ -247,6 +319,7 @@ const MCG = {
             if(resp.status == "complete") {
                 this.clearTemporaryCards();
                 this.CountUp();
+                this.wrongMoves +=1;
             }
         }).catch((er)=>{
             // console.log(er);
@@ -258,6 +331,9 @@ const MCG = {
     },
     clearWinningCards(){
         this.winningCards = [];
+    },
+    clearWinningStars(){
+        this.winningStarsElements = [];
     },
     CountUp(){
         this.movesCount += 1;
@@ -280,6 +356,12 @@ const MCG = {
         this.countdown = 60;
         this.countdownNumberEl.innerText = this.countdown.toLocaleString();
         this.countdownEl.classList.remove('bounceInDown','start');
+        // this.timerReset = true;
+        // if(tInterval) {
+        //     clearInterval(tInterval);
+        //     // tInterval.unref();
+        //     // tInterval = 0;
+        // }
     },
     calcAvg(){
         return Math.floor(this.movesCount/this.numOfIcons);
@@ -289,64 +371,139 @@ const MCG = {
             stars = this.stars.children;
         if(avg > 0 && stars) {
             for (let i = 0; i < avg; i++) {
-                let el = stars[i];
-                if(el && !el.classList.contains('fas','pulse')){
-                    el.classList.add('fas','pulse');
-                    el.classList.remove('far');
+                let el = stars[(stars.length-1)-i];
+                if(el && !el.classList.contains('far','pulse')){
+                    el.classList.add('far','pulse');
+                    el.classList.remove('fas');
                 }
             }
         }
     },
-    // clickRestart(){
-    //     let self = this;
-    //     this.restart.addEventListener('click',(e)=>{
-    //         let el = e.target;
-    //         this.reset(el);
+    winningStars(){
+        let strs = this.stars.children;
+        if(strs) {
+            for (let i = 0; i < strs.length; i++) {
+                let el = strs[i];
+                if(el && el.classList.contains('fas')){
+                    this.winningStarsElements.push(el.outerHTML);
+                }
+            }
+        }
+    },
+    handleResetClk(e){
+        let el = e.target;
+        if(!el && el.classList.value.search(/\s*fa\s*/gi) < 0) return;
+            
+        el.classList.add('rotate');
+        this.restartBtnClicked = true;
+
+        this.reset(el);
+        this.restart.removeEventListener('click',this.handleResetClk);
+    },
+    clickRestart(){
+        let self = this;
+            // emit = new Promise((resolve)=>{
+                this.restart.addEventListener('click',this.handleResetClk.bind(this));
+                // resolve("restart clicked");
+            // });
+            // function clk(e){
+            //     let el = e.target;
+            //     this.reset(el);
+            //     this.restart.removeEventListener('click',clk);
+            // }
+            // return emit;
+    },
+    // clickRestartCb(timer){
+    //     this.clickRestart().then((resp)=>{
+    //         if(resp == "restart clicked" && timer) clearInterval(timer); 
     //     });
     // },
     reset(el){
-        if(el && el.classList.value.search(/\s*fa\s*/gi) > -1) el.classList.add('rotate');
-        let tmout = setTimeout(() => {
-            this.container.classList.add('fade-out');
-            this.deck.innerHTML = '';
-            this.stars.innerHTML = '';
-            this.resetCount();
-            this.resetTimer();
-            this.clearTemporaryCards();
-            this.clearWinningCards();
-            this.init();
-            clearTimeout(tmout);
-            let tout = setTimeout(() => {
-                if(el && el.classList.contains('rotate')) el.classList.remove('rotate');
-                this.container.classList.remove('fade-out');
-                this.timer();
-                this.showSvgLogo();
-                clearTimeout(tout);
+        // if(el && el.classList.value.search(/\s*fa\s*/gi) > -1) {
+        //     el.classList.add('rotate');
+        //     this.restartBtnClicked = true;
+        // }
+        let prom = new Promise((resolve,reject)=>{
+            let tmout = setTimeout(() => {
+                this.container.classList.add('fade-out');
+                this.deck.innerHTML = '';
+                this.stars.innerHTML = '';
+                this.resetCount();
+                this.resetTimer();
+                this.clearTemporaryCards();
+                this.clearWinningCards();
+                this.clearWinningStars();
+                this.init();
+                clearTimeout(tmout);
+                resolve("done");
             }, 500);
-        }, 500);
+        });
+
+        prom.then((resp)=>{
+            if(resp == "done"){
+                let tout = setTimeout(() => {
+                    if(el && el.classList.contains('rotate')){
+                        el.classList.remove('rotate');
+                        this.restartBtnClicked = false;
+                    }
+                    this.container.classList.remove('fade-out');
+                    this.timer();
+                    this.showSvgLogo();
+                    clearTimeout(tout);
+                }, 500);
+            }
+        });
     },
     timer(){
         let self = this;
         this.countdownEl.classList.add('bounceInDown','start');
         this.countdownNumberEl.textContent = this.countdown.toLocaleString();
-
         
-        let tinter = setInterval(()=> {
-            if(this.winningCards.length == 16) { 
-                this.clearWinningCards();
-                clearInterval(tinter); 
-                return false; 
-            }
-            self.countdown -= 1;
-            self.countdown <= 0 ? self.countdown = 60 : self.countdown;
+        if(tInterval) {
+            clearInterval(tInterval);
+        }
+        
+        // setImmediate(() => {
+        //     tInterval.ref();
+        // });
 
-            self.countdownNumberEl.textContent = self.countdown.toLocaleString();
-            if(self.countdown == 60) {
-                clearInterval(tinter);
-                self.timeOut();
+        let tInterval = setInterval(()=> {
+
+            // if(this.timerReset){
+            //     clearInterval(tInterval);
+            //     tInterval = 0;
+            //     this.timerReset = false;
+            //     return false;
+            // }
+                
+            if(this.restartBtnClicked /*|| this.timerReset*/) { //if restart btn clicked, exit
+                clearInterval(tInterval);
+                tInterval = 0;
                 return false;
             }
-        }, 1000);
+            
+            if(this.winningCards.length == 16) { // if there are 16 card matched, exit
+                this.clearWinningCards();
+                clearInterval(tInterval);
+                tInterval = 0;
+                return false;
+            }
+                
+                
+            self.countdown -= 1;
+            self.countdownNumberEl.textContent = self.countdown.toLocaleString();
+            
+            if(self.countdown <= 0) { //if reached to zero it's timeout
+                clearInterval(tInterval);
+                tInterval = 0;
+                self.timeOut();
+                //return false;
+            }
+        
+        
+        
+        },1000);
+
     },
     timeOut(){
         this.countdownEl.classList.remove('bounceInDown');
@@ -396,7 +553,7 @@ const MCG = {
         this.showSvgLogo();
     },
     showSvgLogo(){
-        let objSvgs = [...document.querySelectorAll(".card-wrapper object")];
+        let objSvgs = [...document.querySelectorAll(".card-wrapper .front-svg")];
         objSvgs.map((svg) => {svg.style.display = "block"});
     },
     modalContent(cont){
@@ -420,7 +577,7 @@ const MCG = {
         this.deck.addEventListener('click',(e)=>{
             let trgt = e.target,
                 card = e.target.parentElement;
-            if(trgt.classList.contains("front-svg")) return false;
+            if(trgt.classList.contains("front-svg")) card = e.target.parentElement.parentElement;
             if(/*self.containsClass(card,'card flip match')*/card.classList.value.search(/\s*flip\s*|\s*match\s*|^((?!card).)*$/gi) > -1 || self.temporaryCards.length >= 2) return;
             self.openCard(card);
             self.temporaryCards.push(card);
@@ -436,21 +593,25 @@ const MCG = {
     init() {
         if(this.firstLoad) {
             this.body.style.display = 'block';
+            this.clickCard();
+            this.clickRestart();
             this.firstLoad = false;
         }
             
         this.createCards();
         this.createMoveIcons();
-        this.clickCard();
-        // this.clickRestart();
-        if(this.firstTimeModal){
+        // if(!this.restartBtnClicked) {
+        //     this.clickCard();
+        //     this.clickRestart();
+        // }
+        if(this.firstTimeModal && !this.restartBtnClicked){
             this.modalContent(this.modalStartTemplate());
             this.openModal();
         }
         this.lazyLoad();
     }
 };
-MCG.init();
+MemoCardGame.init();
 
 
 

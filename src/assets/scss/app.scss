@@ -201,10 +201,14 @@ a,button{
                 padding: 0;
                 display: inline-block;
                 margin: 0 5px 0 0;
+                color: gold;
                 li {
                     list-style: none;
                     display: inline-block;
                 }
+                // i {
+                //     color: gold;
+                // }
             }
         }
         .restart {
@@ -323,7 +327,7 @@ a,button{
         align-items: center;
         width: 100%;
         height: 100%;
-        background-color: rgba(255,255,255,0.5);
+        background-color: rgba(255,255,255,0.9);
         text-align: center;
         // padding: 2em;
         // overflow-y: auto;
@@ -353,9 +357,9 @@ a,button{
                 font-size: 2em;
             }
 
-            i{
-                color: gold;
-            }
+            // i{
+            //     color: gold;
+            // }
 
             .omedetou{
                 display: flex;
@@ -366,16 +370,62 @@ a,button{
                 flex: 0 0 10%;
 
                 
-                i{
+                .stars > i{
                     color: gold;
                     margin: 0 15px;
                     text-shadow: 1px 1px 1px darkred;
+                }
+
+                .result{
+                    position: absolute;
+                    left: 2%;
+                    top: 4%;
+                    background-color: rgba(255,255,255,0.8);
+                    padding: 1%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-top: 3px solid gold;
+                    box-shadow: 0px 2px 4px rgba(0,0,0,0.3);
+                    width: 20%;
+
+                    .data{
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: space-between;
+                        align-items: center;
+                        width: 100%;
+                        border-bottom: 1px solid rgba(0,0,0,0.1);
+                        padding: 2%;
+
+                        &:last-child{
+                            border-bottom: 0 none;
+                        }
+
+                        i.fa-star{
+                            color: gold;
+                        }
+                        i.fa-stopwatch{
+                            color: crimson;
+                        }
+                    }
+
+                    // .moves-count{
+                        
+                    // }
+                    // .num-of-stars{
+
+                    // }
+                    // .time{
+
+                    // }
                 }
                 
             }
             
             h2:first-of-type {
-                color: coral;
+                color: crimson;
                 letter-spacing: 1em;
                 text-shadow: 0px -3px 0px mintcream;
             }
@@ -411,5 +461,97 @@ a,button{
                 @include border(1px solid #fff);
             }
         }
+
+        .timeout > h2 > i{
+            color: crimson;
+        }
     }
+}
+
+
+// ===============================================
+// To overwrite used animate-sass animation to support opacity filter alpha
+
+@if $use-bounceInDown == true {
+
+	@-webkit-keyframes bounceInDown {
+		0% {
+			@include opacity(0);
+			-webkit-transform: translateY(-$base-distance-big * 2);
+		}
+
+		60% {
+			@include opacity(1);
+			-webkit-transform: translateY($base-distance * 3);
+		}
+
+		80% {
+            @include opacity(1);
+			-webkit-transform: translateY(-$base-distance);
+		}
+
+		100% {
+            @include opacity(1);
+			-webkit-transform: translateY(0);
+		}
+	}
+
+	@keyframes bounceInDown {
+		0% {
+			@include opacity(0);
+			transform: translateY(-$base-distance-big * 2);
+		}
+
+		60% {
+			@include opacity(1);
+			transform: translateY($base-distance * 3);
+		}
+
+		80% {
+            @include opacity(1);
+			transform: translateY(-$base-distance);
+		}
+
+		100% {
+            @include opacity(1);
+			transform: translateY(0);
+		}
+    }
+}
+
+
+@if $use-bounceOutUp == true {
+
+	@-webkit-keyframes bounceOutUp {
+		0% {
+			-webkit-transform: translateY(0);
+		}
+
+		20% {
+			@include opacity(1);
+			-webkit-transform: translateY($base-distance * 2);
+		}
+
+		100% {
+			@include opacity(0);
+			-webkit-transform: translateY(-$base-distance-big * 2);
+		}
+	}
+
+	@keyframes bounceOutUp {
+		0% {
+			transform: translateY(0);
+		}
+
+		20% {
+			@include opacity(1);
+			transform: translateY($base-distance * 2);
+		}
+
+		100% {
+			@include opacity(0);
+			transform: translateY(-$base-distance-big * 2);
+		}
+	}
+
 }
