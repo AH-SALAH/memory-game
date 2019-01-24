@@ -61,36 +61,6 @@ import { isString } from "util";
 // ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═╝╚═╝     ╚═╝          ╚════╝ ╚══════╝
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// var tInterval = setInterval(()=> {
-            
-//     // if(MemoCardGame.countdown == 61) { //if at any case returned to 61 clear current interval 
-//     //     MemoCardGame.countdown = 60;
-//     //     clearInterval(tInterval);
-//     //     // return false;
-//     // }
-//     // else{
-//     //     MemoCardGame.countdown;
-//     // }
-    
-//     if(MemoCardGame.winningCards.length == 16) { // if there are 16 card matched exit
-//         MemoCardGame.clearWinningCards();
-//         clearInterval(tInterval);
-//         tInterval = 0;
-//         return false;
-//     }
-        
-        
-//     MemoCardGame.countdown -= 1;
-//     MemoCardGame.countdownNumberEl.textContent = MemoCardGame.countdown.toLocaleString();
-    
-//     if(MemoCardGame.countdown <= 0) { //if reached to zero it's timeout
-//         clearInterval(tInterval);
-//         tInterval = 0;
-//         MemoCardGame.timeOut();
-//         //return false;
-//     }
-
-// },1000);
 
 const MemoCardGame = {
     body: document.querySelector("body"),
@@ -120,11 +90,6 @@ const MemoCardGame = {
     restartBtnClicked: false, // to check for for restart btn click
     timerReset: false,
     winningStarsElements: [],
-    // tInterval: ()=>{},
-    // timeInterval(cb) {
-    //     this.tInterval = setInterval(cb,1000);
-    //     return this.tInterval;
-    // }, //set the timeinterval fn
     lazyLoad() {return new LazyLoad({elements_selector: ".lazyload"})},
     Imgs(){ // get imgs from the img folder
         let Imgs = {
